@@ -1,4 +1,5 @@
 import pygame
+from settings import *
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -17,7 +18,7 @@ class Player(pygame.sprite.Sprite):
         self.on_ceiling = False
         self.on_left = False
         self.on_right = False
-        
+        self.last_pos = {}
     
     def input(self):
         keys = pygame.key.get_pressed()
@@ -39,5 +40,15 @@ class Player(pygame.sprite.Sprite):
     def jump(self):
         self.direction.y += -20
     
-    def update(self):
+    def respawn(self, shift):
+        if self.rect.y > SCREEN_HEIGHT:
+            self.rect.y = self.last_pos["player_y"]
+            self.rect.x = self.last_pos["player_x"]
+        else:
+            pass
+    
+
+    
+    def update(self,shift):
         self.input()
+        self.respawn(shift)

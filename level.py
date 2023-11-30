@@ -7,9 +7,26 @@ from player import Player
 class Level: 
     def __init__(self, maps, screen):
         self.screen = screen
-        
+        self.shift = 0
         self.setup_level(maps)
+    
+    def scroll(self):
+        player = self.player.sprite
+        player_x = player.rect.centerx
+        direction_x = player.direction.x
         
+        if player_x < SCROLL_T and direction_x < 0:
+            self.shift = SHIFT_AMOUNT
+            player.speed = 0
+        elif player_x > SCREEN_WIDTH - SCROLL_T and direction_x > 0:
+            self.shift = -SHIFT_AMOUNT
+            player.speed = 0
+        else:
+            self.shift = 0
+            player.speed = 8
+        
+    
+    
     def setup_level(self, map):
         self.tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
@@ -34,6 +51,8 @@ class Level:
                     player.rect.bottom = sprite.rect.top
                     player.direction.y = 0
                     player.on_ground = True
+                    print(player.rect)
+                    player.last_pos = {"player_x": player.rect.x,"player_y": player.rect.y}
                 elif player.direction.y < 0:
                     player.rect.top = sprite.rect.bottom
                     player.direction.y = 0
@@ -62,12 +81,14 @@ class Level:
             player.on_left = False
         if player.on_right and player.direction.x <= 0:
             player.on_roght = False
+        
                         
     
     def run(self): 
-        self.tiles.update()
+        self.tiles.update(self.shift)
         self.tiles.draw(self.screen)
-        self.player.update()
+        self.scroll()
+        self.player.update(self.shift)
         self.vertical_collsion()
         self.horizontal_collison()
         self.player.draw(self.screen)

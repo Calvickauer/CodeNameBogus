@@ -14,10 +14,10 @@ MAPS = {
         "                                                          ",
         "                                                          ",
         "                                                          ",
-        "    X                                                     ",
-        "    X                                                     ",
-        "    X                                                     ",
-        "   XXX                              X                     ",
+        "                                                          ",
+        "                                                          ",
+        "                                                          ",
+        "         E                                                ",
         "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
     ],

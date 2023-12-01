@@ -2,6 +2,8 @@ import pygame
 from settings import *
 from tiles import Tile
 from player import Player
+from gun import Gun
+from enemy import Enemy
 
 
 class Level: 
@@ -9,6 +11,8 @@ class Level:
         self.screen = screen
         self.shift = 0
         self.setup_level(maps)
+        self.dead = False
+        self.gun = Gun
     
     def scroll(self):
         player = self.player.sprite
@@ -30,17 +34,24 @@ class Level:
     def setup_level(self, map):
         self.tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
+        self.bullets = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
+        
         
         for row_index, row in enumerate(map):
             for col_index, cell in enumerate(row):
                 x = col_index * TILE_W
                 y = row_index * TILE_W
                 if cell == "X":
+                    print(x, y)
                     tile = Tile((x,y), TILE_W)
                     self.tiles.add(tile)
                 if cell == "P":
-                    player_character = Player((0,0))
+                    player_character = Player((0,0), self.bullets)
                     self.player.add(player_character)
+                if cell == "E":
+                    enemy_character = Enemy((x,y))
+                    self.enemies.add(enemy_character)
     
     def vertical_collsion(self):
         player = self.player.sprite
@@ -51,8 +62,6 @@ class Level:
                     player.rect.bottom = sprite.rect.top
                     player.direction.y = 0
                     player.on_ground = True
-                    print(player.rect)
-                    player.last_pos = {"player_x": player.rect.x,"player_y": player.rect.y}
                 elif player.direction.y < 0:
                     player.rect.top = sprite.rect.bottom
                     player.direction.y = 0
@@ -82,15 +91,26 @@ class Level:
         if player.on_right and player.direction.x <= 0:
             player.on_roght = False
         
-                        
+        
+    def death(self):
+        player = self.player.sprite
+        if player.health <= 0:
+            self.dead = True
+        if player.rect.y > SCREEN_HEIGHT:
+            player.health = 0
     
     def run(self): 
         self.tiles.update(self.shift)
         self.tiles.draw(self.screen)
         self.scroll()
-        self.player.update(self.shift)
+        self.player.update()
         self.vertical_collsion()
         self.horizontal_collison()
         self.player.draw(self.screen)
+        self.death()
+        self.bullets.update()
+        self.bullets.draw(self.screen)
+        self.enemies.update(self.shift)
+        self.enemies.draw(self.screen)
         
         

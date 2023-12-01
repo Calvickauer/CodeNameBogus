@@ -47,7 +47,7 @@ class Level:
                     tile = Tile((x,y), TILE_W)
                     self.tiles.add(tile)
                 if cell == "P":
-                    player_character = Player((0,0), self.bullets)
+                    player_character = Player((0,0), self.bullets, self.enemies)
                     self.player.add(player_character)
                 if cell == "E":
                     enemy_character = Enemy((x,y))
@@ -73,6 +73,25 @@ class Level:
             if player.on_ceiling and player.direction.y > 0:
                 player.on_ceiling = False
                 
+    def enemy_vertical_collsion(self):
+        for enemy in self.enemies.sprites():
+            for sprite in self.tiles.sprites():
+                if sprite.rect.colliderect(enemy.rect):
+                    if enemy.direction.y > 0:
+                        enemy.rect.bottom = sprite.rect.top
+                        enemy.direction.y = 0
+                        enemy.on_ground = True
+                    elif enemy.direction.y < 0:
+                        enemy.rect.top = sprite.rect.bottom
+                        enemy.direction.y = 0
+                        enemy.on_ceiling = True
+                    
+            if enemy.on_ground and enemy.direction.y < 0 or enemy.direction.y > 1:
+                enemy.on_ground = False
+            
+            if enemy.on_ceiling and enemy.direction.y > 0:
+                enemy.on_ceiling = False
+                
     def horizontal_collison(self):
         player = self.player.sprite
         player.rect.x += player.direction.x * player.speed
@@ -90,6 +109,23 @@ class Level:
             player.on_left = False
         if player.on_right and player.direction.x <= 0:
             player.on_roght = False
+    
+    def enemy_horizontal_collison(self):
+        for enemy in self.enemies.sprites():
+            enemy.rect.x += enemy.direction.x * enemy.speed
+            for sprite in self.tiles.sprites():
+                if sprite.rect.colliderect(enemy.rect):
+                    if enemy.direction.x < 0:
+                        enemy.rect.left = sprite.rect.right
+                        enemy.on_left = True
+                    elif enemy.direction.x > 0:
+                        enemy.rect.right = sprite.rect.left
+                        enemy.on_right = True
+
+        if enemy.on_left and enemy.direction.x >= 0:
+            enemy.on_left = False
+        if enemy.on_right and enemy.direction.x <= 0:
+            enemy.on_roght = False
         
         
     def death(self):
@@ -112,5 +148,7 @@ class Level:
         self.bullets.draw(self.screen)
         self.enemies.update(self.shift)
         self.enemies.draw(self.screen)
+        self.enemy_vertical_collsion()
+        self.enemy_horizontal_collison()
         
         

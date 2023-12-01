@@ -3,12 +3,13 @@ from settings import *
 from gun import Gun
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, bullets):
+    def __init__(self, pos, bullets, enemies):
         super().__init__()
         self.image = pygame.Surface((62,62))
         self.image.fill("red")
         self.rect = self.image.get_rect(topleft = pos)
         self.bullets = bullets
+        self.enemies = enemies
         
         # stats
         
@@ -41,7 +42,7 @@ class Player(pygame.sprite.Sprite):
             self.shoot()
     
     def shoot(self):
-        bullet = Gun(self.rect.center, self.looking_right)
+        bullet = Gun(self.rect.center, self.looking_right,self.enemies)
         self.bullets.add(bullet)
         
         

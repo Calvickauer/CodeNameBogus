@@ -36,7 +36,8 @@ class Level:
         self.player = pygame.sprite.GroupSingle()
         self.bullets = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
-        
+        self.grenades = pygame.sprite.Group()
+        self.particle_sprites = pygame.sprite.Group()
         
         for row_index, row in enumerate(map):
             for col_index, cell in enumerate(row):
@@ -47,7 +48,7 @@ class Level:
                     tile = Tile((x,y), TILE_W)
                     self.tiles.add(tile)
                 if cell == "P":
-                    player_character = Player((0,0), self.bullets, self.enemies)
+                    player_character = Player((0,0), self.bullets, self.enemies, self.grenades, self.particle_sprites)
                     self.player.add(player_character)
                 if cell == "E":
                     enemy_character = Enemy((x,y))
@@ -144,11 +145,15 @@ class Level:
         self.horizontal_collison()
         self.player.draw(self.screen)
         self.death()
+        self.grenades.update(self.enemies)
+        self.grenades.draw(self.screen)
         self.bullets.update()
         self.bullets.draw(self.screen)
         self.enemies.update(self.shift)
         self.enemies.draw(self.screen)
         self.enemy_vertical_collsion()
         self.enemy_horizontal_collison()
+        self.particle_sprites.update()
+        self.particle_sprites.draw(self.screen)
         
         

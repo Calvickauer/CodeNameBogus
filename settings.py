@@ -36,3 +36,14 @@ level_map = [
 '      E                     ',
 '          E    E            ',
 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX']
+
+PRIMARY_WEAPONS = {
+    'handgun': {'name': 'handgun', 'fire_rate': 0.4, 'damage': 2},
+    'revolver': {'name': 'revolver', 'fire_rate': 0.7, 'damage': 3}
+}
+SECONDARY_WEAPONS = {
+    'shotgun': {'name': 'shotgun','fire_rate': 0.9, 'damage': 6}
+}
+HEAVY_WEAPONS = {
+    'machinegun': {'name':'machinegun','fire_rate': 0.1, 'damage': 4}
+}

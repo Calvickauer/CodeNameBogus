@@ -1,20 +1,30 @@
 import pygame
 from settings import *
 from gun import Gun
+from grenade import Grenade
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, bullets, enemies):
+    def __init__(self, pos, bullets, enemies, grenades, particle_sprites):
         super().__init__()
         self.image = pygame.Surface((62,62))
         self.image.fill("red")
         self.rect = self.image.get_rect(topleft = pos)
         self.bullets = bullets
         self.enemies = enemies
+        self.grenades = grenades
+        self.particle_sprites = particle_sprites
         
         # stats
         
         self.health = 100
         
+        # cool downs
+        
+        self.gun_cooldown = .5
+        self.gun_cooldown_time = 0
+        self.grenade_cooldown = 1
+        self.grenade_cooldown_time = 0
+                        
         # movement
         
         self.direction = pygame.math.Vector2(0, 0)
@@ -40,10 +50,20 @@ class Player(pygame.sprite.Sprite):
             self.jump()
         if keys[pygame.K_c]:
             self.shoot()
+        if keys[pygame.K_z]:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.grenade_cooldown_time > self.grenade_cooldown * 1000:
+                grenade = Grenade(self.rect, self.looking_right, self.particle_sprites)
+                self.grenades.add(grenade)
+                grenade.throw()
+                self.grenade_cooldown_time = current_time
     
     def shoot(self):
-        bullet = Gun(self.rect.center, self.looking_right,self.enemies)
-        self.bullets.add(bullet)
+        current_time = pygame.time.get_ticks()
+        if current_time - self.gun_cooldown_time > self.gun_cooldown * 1000:
+            bullet = Gun(self.rect.center, self.looking_right,self.enemies)
+            self.bullets.add(bullet)
+            self.gun_cooldown_time = current_time
         
         
             

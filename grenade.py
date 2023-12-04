@@ -7,8 +7,7 @@ class Grenade(pygame.sprite.Sprite):
         self.width = 4
         self.height = 4
         self.direction = pygame.math.Vector2(0,0)
-        self.image = pygame.Surface((self.width, self.height))
-        self.image.fill('red')
+        self.image = pygame.image.load("./assets/weapons/grenade.png")
         self.gravity = 0.8
         self.throw_strength = -12
         self.throw_length = 10
@@ -34,7 +33,14 @@ class Grenade(pygame.sprite.Sprite):
             effects = Particles(self.rect, "explosion")
             self.particle_sprites.add(effects)
             for enemey in enemies_hit:
-                print("hit")
+                self.kill()
+                
+    def floor_collision(self, tiles):
+        floor_hit = pygame.sprite.spritecollide(self, tiles, False)
+        if floor_hit:
+            effects = Particles(self.rect, "explosion")
+            self.particle_sprites.add(effects)
+            for tile in floor_hit:
                 self.kill()
     
     def throw(self):
@@ -47,8 +53,10 @@ class Grenade(pygame.sprite.Sprite):
             self.direction.x = -self.throw_length
             self.thrown = False
     
-    def update(self, enemies):
+    
+    def update(self, enemies, tiles):
         self.add_gravity()
         self.enemy_collision(enemies)
+        self.floor_collision(tiles)
         
         

@@ -44,7 +44,6 @@ class Level:
                 x = col_index * TILE_W
                 y = row_index * TILE_W
                 if cell == "X":
-                    print(x, y)
                     tile = Tile((x,y), TILE_W)
                     self.tiles.add(tile)
                 if cell == "P":
@@ -126,7 +125,7 @@ class Level:
         if enemy.on_left and enemy.direction.x >= 0:
             enemy.on_left = False
         if enemy.on_right and enemy.direction.x <= 0:
-            enemy.on_roght = False
+            enemy.on_right = False
         
         
     def death(self):
@@ -145,7 +144,7 @@ class Level:
         self.horizontal_collison()
         self.player.draw(self.screen)
         self.death()
-        self.grenades.update(self.enemies)
+        self.grenades.update(self.enemies, self.tiles)
         self.grenades.draw(self.screen)
         self.bullets.update()
         self.bullets.draw(self.screen)

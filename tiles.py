@@ -1,11 +1,14 @@
 import pygame
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, pos, size):
-        super().__init__()
-        self.image = pygame.image.load("./assets/terrain/floor.png").convert_alpha()
+    def __init__(self, pos, group, size):
+        super().__init__(group)
+        alpha_value = 45
+        self.image = pygame.Surface((size, size), pygame.SRCALPHA)
+        self.image.fill((1, 255, 255, alpha_value))
         self.rect = self.image.get_rect(topleft=pos)
 
-    def update(self, shift):
-        self.rect.x += shift
+    def update(self, var, var1):
+        # self.rect.x += shift
+        pass
         

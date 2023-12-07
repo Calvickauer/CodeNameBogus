@@ -2,18 +2,21 @@ import pygame
 
 class Shotgun(pygame.sprite.Sprite):
 
-    def __init__(self, pos, direction, enemies, spread):
-        super().__init__()
+    def __init__(self, player, group, direction, enemies, spread):
+        super().__init__(group)
         self.width = 7
         self.height = 7
         self.image = pygame.Surface((self.width, self.height))
-        self.image.fill("lightblue")
-        self.rect = self.image.get_rect(topleft = pos.center)
+        self.image.fill("darkblue")
+        if player.looking_right:
+            self.rect = self.image.get_rect(topleft = (player.rect.x + 67, player.rect.y + 28))
+        else:
+            self.rect = self.image.get_rect(topleft = (player.rect.x, player.rect.y + 28))
         self.speed = 20
         self.direction = direction
         self.enemies = enemies
         self.spread = spread
-        self.shooter = pos
+        self.shooter = player.rect
 
     def collision(self):
         hit = pygame.sprite.spritecollide(self,self.enemies,False)
@@ -37,7 +40,7 @@ class Shotgun(pygame.sprite.Sprite):
             self.rect.x -= self.speed
             self.rect.y += self.spread
 
-    def update(self):
+    def update(self, var, var1):
         self.orientation()
         self.collision()
         self.spread_distance()

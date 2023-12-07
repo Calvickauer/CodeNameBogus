@@ -2,8 +2,8 @@ import pygame
 from support import *
 
 class Particles(pygame.sprite.Sprite):
-    def __init__(self, position, particle_type):
-        super().__init__()
+    def __init__(self, position, group, particle_type):
+        super().__init__(group)
         self.import_assets()
         self.frame_index = 0
         self.animation_speed = .15

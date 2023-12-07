@@ -1,5 +1,6 @@
 import pygame
 from os import walk
+from csv import reader
 
 def import_folder(path):
     surface_list = []
@@ -10,3 +11,13 @@ def import_folder(path):
             surface_list.append(image_surf)
 
     return surface_list
+
+def import_csv_layout(path):
+    terrain_map = []
+    with open(path) as level_map:
+        layout = reader(level_map,delimiter=',')
+        for row in layout:
+            #print(row)   to check the map numbers
+            terrain_map.append(list(row))
+
+        return terrain_map

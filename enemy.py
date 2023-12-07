@@ -77,8 +77,7 @@ class Enemy(pygame.sprite.Sprite):
             else:
                 self.status = "idle"
         
-    def update(self, shift):
-        self.rect.x += shift
+    def update(self, var, var1):
         self.add_gravity()
         self.get_status()
         self.animate()

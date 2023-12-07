@@ -2,8 +2,8 @@ import pygame
 from particles import Particles
 
 class Grenade(pygame.sprite.Sprite):
-    def __init__(self, player_rect, looking_right, particle_sprites):
-        super().__init__()
+    def __init__(self, player_rect, group, looking_right, particle_sprites, enemy_collision, floor_collision):
+        super().__init__(group)
         self.width = 4
         self.height = 4
         self.direction = pygame.math.Vector2(0,0)
@@ -15,6 +15,8 @@ class Grenade(pygame.sprite.Sprite):
         self.damage = 5
         self.looking_right = looking_right
         self.particle_sprites = particle_sprites
+        self.enemy_collision = enemy_collision
+        self.floor_collision = floor_collision
     
         # setup rect
         if self.looking_right:
@@ -26,22 +28,6 @@ class Grenade(pygame.sprite.Sprite):
         self.direction.y += self.gravity
         self.rect.y += self.direction.y
         self.rect.x += self.direction.x
-    
-    def enemy_collision(self,enemies):
-        enemies_hit = pygame.sprite.spritecollide(self, enemies, False)
-        if enemies_hit:
-            effects = Particles(self.rect, "explosion")
-            self.particle_sprites.add(effects)
-            for enemey in enemies_hit:
-                self.kill()
-                
-    def floor_collision(self, tiles):
-        floor_hit = pygame.sprite.spritecollide(self, tiles, False)
-        if floor_hit:
-            effects = Particles(self.rect, "explosion")
-            self.particle_sprites.add(effects)
-            for tile in floor_hit:
-                self.kill()
     
     def throw(self):
         if self.looking_right:
@@ -56,7 +42,7 @@ class Grenade(pygame.sprite.Sprite):
     
     def update(self, enemies, tiles):
         self.add_gravity()
-        self.enemy_collision(enemies)
-        self.floor_collision(tiles)
+        self.enemy_collision(self, enemies)
+        self.floor_collision(self, tiles)
         
         

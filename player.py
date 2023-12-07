@@ -6,13 +6,11 @@ from support import *
 from shotgun import Shotgun
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, bullets, enemies, grenades, particle_sprites):
-        super().__init__()
+    def __init__(self, pos, group, bullets, enemies, grenades, particle_sprites, shoot, throw_grenade):
+        super().__init__(group)
         self.import_assets()
         self.frame_index = 0
         self.animation_speed = 0.15
-        # self.image = pygame.Surface((62,62))
-        # self.image.fill("red")
         self.image = self.animations['idle'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
         self.bullets = bullets
@@ -22,7 +20,9 @@ class Player(pygame.sprite.Sprite):
         self.primary_weapons = PRIMARY_WEAPONS['handgun']
         self.secondary_weapons = SECONDARY_WEAPONS['shotgun']
         self.heavy_weapons = HEAVY_WEAPONS['machinegun']
-        self.equipped_weapon = self.secondary_weapons        
+        self.equipped_weapon = self.secondary_weapons     
+        self.shoot = shoot   
+        self.throw_grenade = throw_grenade
         # stats
         
         self.health = 100
@@ -67,34 +67,9 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_SPACE] and self.on_ground:
             self.jump()
         if keys[pygame.K_c]:
-            self.shoot()
+            self.shoot()  
         if keys[pygame.K_z]:
-            current_time = pygame.time.get_ticks()
-            if current_time - self.grenade_cooldown_time > self.grenade_cooldown * 1000:
-                grenade = Grenade(self.rect, self.looking_right, self.particle_sprites)
-                self.grenades.add(grenade)
-                grenade.throw()
-                self.grenade_cooldown_time = current_time
-    
-    def shoot(self):
-        current_time = pygame.time.get_ticks()
-        if current_time - self.gun_cooldown_time > self.gun_cooldown * 1000:
-            if self.equipped_weapon["name"] == "handgun":
-                bullet = Gun(self.rect.center, self.looking_right,self.enemies)
-                self.bullets.add(bullet)
-                self.gun_cooldown_time = current_time
-            elif self.equipped_weapon['name'] == 'shotgun':
-                bullet = Shotgun(self.rect, self.looking_right,self.enemies, -2)
-                bullet1 = Shotgun(self.rect, self.looking_right,self.enemies, -1)
-                bullet2 = Shotgun(self.rect, self.looking_right,self.enemies, 0)
-                bullet3 = Shotgun(self.rect, self.looking_right,self.enemies, 1)
-                bullet4 = Shotgun(self.rect, self.looking_right,self.enemies, 2)
-                self.bullets.add(bullet, bullet1, bullet2, bullet3, bullet4)
-                self.gun_cooldown_time = current_time
-                
-            
-        
-        
+            self.throw_grenade()
             
     def add_gravity(self):
         self.direction.y += self.gravity
@@ -140,7 +115,7 @@ class Player(pygame.sprite.Sprite):
                 self.status = "idle"
                 
             
-    def update(self):
+    def update(self, var, var1):
         self.input()
         self.animate()
         self.get_status()

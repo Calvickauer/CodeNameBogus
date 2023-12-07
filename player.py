@@ -1,34 +1,29 @@
 import pygame
 from settings import *
-from gun import Gun
-from grenade import Grenade
 from support import *
-from shotgun import Shotgun
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, group, bullets, enemies, grenades, particle_sprites, shoot, throw_grenade):
+    def __init__(self, pos, group, shoot, throw_grenade):
         super().__init__(group)
         self.import_assets()
         self.frame_index = 0
         self.animation_speed = 0.15
         self.image = self.animations['idle'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
-        self.bullets = bullets
-        self.enemies = enemies
-        self.grenades = grenades
-        self.particle_sprites = particle_sprites
+        
+        # Weapon types
         self.primary_weapons = PRIMARY_WEAPONS['handgun']
         self.secondary_weapons = SECONDARY_WEAPONS['shotgun']
         self.heavy_weapons = HEAVY_WEAPONS['machinegun']
-        self.equipped_weapon = self.secondary_weapons     
+        
+        # weapon actions
+        self.equipped_weapon = self.heavy_weapons     
         self.shoot = shoot   
         self.throw_grenade = throw_grenade
         # stats
-        
         self.health = 100
         
         # cool downs
-        
         self.gun_cooldown = .5
         self.gun_cooldown_time = 0
         self.grenade_cooldown = 1
@@ -56,6 +51,7 @@ class Player(pygame.sprite.Sprite):
     
     def input(self):
         keys = pygame.key.get_pressed()
+        
         if keys[pygame.K_RIGHT]:
             self.direction.x = 1
             self.looking_right = True
@@ -67,10 +63,14 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_SPACE] and self.on_ground:
             self.jump()
         if keys[pygame.K_c]:
-            self.shoot()  
+            self.shoot(self)  
         if keys[pygame.K_z]:
             self.throw_grenade()
+        # sprint
+        if keys[pygame.K_v]:
+            self.speed = 12
             
+        
     def add_gravity(self):
         self.direction.y += self.gravity
         self.rect.y += self.direction.y

@@ -12,26 +12,25 @@ from particles import Particles
 class Level: 
     def __init__(self, maps, screen):
         self.screen = screen
-        self.shift = 0
         self.setup_level(maps)
         self.dead = False
         self.gun = Gun
         
     
-    def scroll(self):
-        player = self.player.sprite
-        player_x = player.rect.centerx
-        direction_x = player.direction.x
+    # def scroll(self):
+    #     player = self.player.sprite
+    #     player_x = player.rect.centerx
+    #     direction_x = player.direction.x
         
-        if player_x < SCROLL_T and direction_x < 0:
-            self.shift = SHIFT_AMOUNT
-            player.speed = 0
-        elif player_x > SCREEN_WIDTH - SCROLL_T and direction_x > 0:
-            self.shift = -SHIFT_AMOUNT
-            player.speed = 0
-        else:
-            self.shift = 0
-            player.speed = 8
+    #     if player_x < SCROLL_T and direction_x < 0:
+    #         self.shift = SHIFT_AMOUNT
+    #         player.speed = 0
+    #     elif player_x > SCREEN_WIDTH - SCROLL_T and direction_x > 0:
+    #         self.shift = -SHIFT_AMOUNT
+    #         player.speed = 0
+    #     else:
+    #         self.shift = 0
+    #         player.speed = 8
         
     
     
@@ -44,32 +43,35 @@ class Level:
         self.particle_sprites = pygame.sprite.Group()
         self.visible_sprites = YSortCameraGroup()
         
-        maps = {
-            "map_one": import_csv_layout("./assets/map/level1_floor_tiles.csv")
+        layouts = {
+            "floor": import_csv_layout("./assets/map2/level2_floor.csv"),
+            "enemy": import_csv_layout("./assets/map2/level2_enemy.csv"),
+            "boundary": import_csv_layout("./assets/map2/level2_boundaries.csv"),
+            "level_one": import_csv_layout('./assets/map2/level2_level.csv')
         }
         player_character = Player(
             (75,404),
-            [self.visible_sprites],
-            self.bullets,
-            self.enemies,
-            self.grenades,
-            self.particle_sprites,
+            [self.visible_sprites, self.player],
             self.shoot,
             self.throw_grenade)
-        self.player.add(player_character)
-        for row_index, row in enumerate(maps["map_one"]):
-            for col_index, cell in enumerate(row):
-                x = col_index * TILE_W
-                y = row_index * TILE_W
-                if cell != "-1":
-                    tile = Tile((x,y),[self.visible_sprites], TILE_W)
-                    self.tiles.add(tile)
-                # if cell == "P":
-                #     player_character = Player((0,0), self.bullets, self.enemies, self.grenades, self.particle_sprites)
-                #     self.player.add(player_character)
-                # if cell == "E":
-                #     enemy_character = Enemy((x,y))
-                #     self.enemies.add(enemy_character)
+        
+        for style,layout in layouts.items():
+        
+            for row_index, row in enumerate(layout):
+                for col_index, cell in enumerate(row):
+                    x = col_index * TILE_W
+                    y = row_index * TILE_W
+                    if cell != "-1":
+                        if style == "floor" or style == "boundary":
+                            tile = Tile((x,y),[self.visible_sprites], TILE_W)
+                            self.tiles.add(tile)
+                        if style == "enemy":
+                            enemy_character = Enemy((x,(y - 60)), [self.visible_sprites, self.enemies])
+                        if style == "level_one":
+                            print("particles")
+                            Particles((x,(y - 128)),[self.particle_sprites, self.visible_sprites], style)
+                            
+                            
             
     
     def vertical_collsion(self):
@@ -156,29 +158,29 @@ class Level:
     
     # PLAYER ACTIONS 
     
-    def shoot(self):
+    def shoot(self, shooter):
         player = self.player.sprite
+        if player.equipped_weapon["name"] == "machinegun":
+            bullet = Gun(player, [self.visible_sprites, self.bullets], player.looking_right, self.enemies, shooter)
         current_time = pygame.time.get_ticks()
         if current_time - player.gun_cooldown_time > player.gun_cooldown * 1000:
             if player.equipped_weapon["name"] == "handgun":
-                bullet = Gun(player.rect.center, [self.visible_sprites], player.looking_right, self.enemies)
-                player.bullets.add(bullet)
+                bullet = Gun(player, [self.visible_sprites, self.bullets], player.looking_right, self.enemies, shooter)
                 player.gun_cooldown_time = current_time
             elif player.equipped_weapon['name'] == 'shotgun':
-                bullet = Shotgun(player,[self.visible_sprites], player.looking_right,player.enemies, -2)
-                bullet1 = Shotgun(player,[self.visible_sprites], player.looking_right,player.enemies, -1)
-                bullet2 = Shotgun(player,[self.visible_sprites], player.looking_right,player.enemies, 0)
-                bullet3 = Shotgun(player,[self.visible_sprites], player.looking_right,player.enemies, 1)
-                bullet4 = Shotgun(player,[self.visible_sprites], player.looking_right,player.enemies, 2)
-                player.bullets.add(bullet, bullet1, bullet2, bullet3, bullet4)
+                bullet = Shotgun(player,[self.visible_sprites, self.bullets], player.looking_right,self.enemies, -2)
+                bullet1 = Shotgun(player,[self.visible_sprites, self.bullets], player.looking_right,self.enemies, -1)
+                bullet2 = Shotgun(player,[self.visible_sprites, self.bullets], player.looking_right,self.enemies, 0)
+                bullet3 = Shotgun(player,[self.visible_sprites, self.bullets], player.looking_right,self.enemies, 1)
+                bullet4 = Shotgun(player,[self.visible_sprites, self.bullets], player.looking_right,self.enemies, 2)
                 player.gun_cooldown_time = current_time
+            
     
     def throw_grenade(self):
         player = self.player.sprite
         current_time = pygame.time.get_ticks()
         if current_time - player.grenade_cooldown_time > player.grenade_cooldown * 1000:
-            grenade = Grenade(player.rect,[self.visible_sprites], player.looking_right, player.particle_sprites, self.enemy_collision, self.floor_collision)
-            player.grenades.add(grenade)
+            grenade = Grenade(player.rect,[self.visible_sprites, self.grenades], player.looking_right, self.particle_sprites, self.enemy_collision, self.floor_collision)
             grenade.throw()
             player.grenade_cooldown_time = current_time  
                 
@@ -186,18 +188,20 @@ class Level:
     
     # particle actions
     
+    # grenade actions
+    
     def enemy_collision(self, grenade, enemies):
         enemies_hit = pygame.sprite.spritecollide(grenade, enemies, False)
         if enemies_hit:
-            effects = Particles(grenade.rect, [self.visible_sprites], "explosion")
+            effects = Particles((grenade.rect.x, (grenade.rect.y - 128)), [self.visible_sprites], "explosion")
             grenade.particle_sprites.add(effects)
             for enemey in enemies_hit:
                 grenade.kill()
                 
     def floor_collision(self, grenade, tiles):
-        floor_hit = pygame.sprite.spritecollide(self, tiles, False)
+        floor_hit = pygame.sprite.spritecollide(grenade, tiles, False)
         if floor_hit:
-            effects = Particles(grenade.rect, [self.visible_sprites], "explosion")
+            effects = Particles((grenade.rect.x, (grenade.rect.y - 128)), [self.visible_sprites], "explosion")
             grenade.particle_sprites.add(effects)
             for tile in floor_hit:
                 grenade.kill()
@@ -221,10 +225,8 @@ class Level:
         # self.bullets.draw(self.screen)
         # self.enemies.update(self.shift)
         # self.enemies.draw(self.screen)
-        # self.enemy_vertical_collsion()
-        # self.enemy_horizontal_collison()
-        # self.particle_sprites.update()
-        # self.particle_sprites.draw(self.screen)
+        self.enemy_vertical_collsion()
+        self.enemy_horizontal_collison()
     
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self):
@@ -236,7 +238,7 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.offset = pygame.math.Vector2()
 
         #CREATE FLOOR
-        self.floor_surf = pygame.image.load('./assets/map/level1.png').convert()
+        self.floor_surf = pygame.image.load('./assets/map2/map2.png').convert()
         self.floor_rect = self.floor_surf.get_rect(topleft = (0,0))
 
     def custom_draw(self,player):
